@@ -1,0 +1,11 @@
+Flask
+scanpy
+pandas
+numpy
+matplotlib
+umap-learn
+plotly
+python-igraph
+leidenalg
+harmonypy
+gunicorn
