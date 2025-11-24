@@ -1,0 +1,66 @@
+{% extends "base.html.html" %}
+{% block title %}Gene Browser | Oka Lab Tools{% endblock %}
+
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<h1></h1>
+
+<form method="post" action="/" style="display: flex; align-items: flex-start; flex-wrap: wrap; position: relative;">
+    <div style="position: relative; flex-grow: 1; display: flex;">
+        <label for="search">GN:</label>
+        <input type="text" id="search" name="search" required>
+        <button type="submit" style="margin-left: 5px;">Search</button>
+    </div>
+    <div id="autofill" style="position: absolute; top: 100%; left: 0; width: 100%; margin-top: 5px; z-index: 2;"></div>
+</form>
+
+<div id="search_results">
+    {% if search_value %}
+        <h2>Search Results for '{{ search_value }}':</h2>
+        <ul>
+            {% for result in search_results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+<script>
+    function completeSuggestion(suggestion) {
+        $('#search').val(suggestion);
+        $('#autofill').html(''); 
+    }
+
+    jQuery(document).ready(function($) {
+        console.log("Autofill script loaded.");
+
+        $('#search').on('input', function() {
+            console.log("Input detected.");
+
+            var searchValue = $(this).val().toLowerCase(); 
+
+            if (searchValue.trim() !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/autofill',
+                    data: { 'search_value': searchValue },
+                    success: function(data) {
+                        console.log("Autofill data received:", data);
+
+                        var spacedSuggestions = data.map(function(suggestion) {
+                            return '<div style="margin-bottom: 5px; cursor: pointer;" onclick="completeSuggestion(\'' + suggestion + '\')">' + suggestion + '</div>';
+                        });
+
+                        $('#autofill').html(spacedSuggestions.join(''));
+                    }
+                });
+            } else {
+                $('#autofill').html('');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

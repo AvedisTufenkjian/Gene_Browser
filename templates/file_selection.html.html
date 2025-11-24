@@ -1,0 +1,51 @@
+
+{% extends "base.html.html" %}
+{% block title %}{% endblock %}
+
+{% block content %}
+
+<style>
+    a:link {
+      color: black;
+      background-color: transparent;
+      text-decoration: none;
+    }
+    a:visited {
+      color: black;
+      background-color: transparent;
+      text-decoration: none;
+    }
+    a:hover {
+      color: grey;
+      background-color: transparent;
+      text-decoration: underline;
+    }
+    a:active {
+      color: grey;
+      background-color: transparent;
+      text-decoration: underline;
+    }
+</style>
+
+<h1></h1>
+
+<form method="post" action="/select_file">
+    <label for="csv_file">Select Library:</label>
+<select id="csv_file" name="csv_file" required>
+  <option value="Cells">Cells</option>
+  <option value="Neurons">Neurons</option>
+</select>
+
+    <button type="submit">Continue</button>
+</form>
+
+<br />
+<br/> <p1>This companion gene browser contains extended data from our publications:<br /><br/>
+<b><i><a href="https://www.nature.com/articles/s41586-020-2821-8">The cellular basis of distinct thirst modalities</a></i></b><br /></p1>
+<p1><i>Allan-Hermann Pool, Tongtong Wang, David A. Stafford, Rebecca K. Chance, Sangjun Lee, John Ngai & Yuki Oka</i>. <b>Nature,</b> 2020 <br/>
+<br/><b><i><a href="https://www.cell.com/cell/fulltext/S0092-8674(23)01171-6">Parallel neural pathways control sodium consumption and taste valence</a></i></b><br /></p1>
+<p1><i>Yameng Zhang, Allan-Hermann Pool, Tongtong Wang, Lu Liu, Elin Kang, Bei Zhang, Liang Ding, Kirsten Frieda, Richard Palmiter & Yuki Oka</i>. <b>Cell,</b> 2023
+
+<!--This Gene Browser was built by Avedis Tufenkjian, 2024 -->
+    <p1><br/><br/>This gene browser offers a convenient way to interact with our SFO scRNA-seq dataset and visualize gene expression across different thirst conditions. Expression data from each condition are integrated into a single expression matrix using Harmonypy. Gene expression count is normalized to 10,000 reads, log transformed, and scaled. Dimensionality reduction with principal component analysis is performed on the scaled gene expression data. 20 principal components are used as input to clustering analysis. The shared nearest-neighbor graph is compiled and transcriptomic clusters are identified by optimizing the graph modularity function with the Leiden algorithm as implemented by the scanpy.pp.neighbors and scanpy.tl.leiden functions (resolution parameter of 2). The results of clustering are visualized in both a two-dimensional and interactive three-dimensional UMAP embedding.</p1>
+{% endblock %}

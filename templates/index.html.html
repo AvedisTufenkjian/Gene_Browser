@@ -1,0 +1,108 @@
+
+{% extends "base.html.html" %}
+{% block title %}Gene Browser | Oka Lab Tools{% endblock %}
+
+{% block content %}
+
+<h1></h1>
+
+{% if selected_file %}
+    <p>Selected Library: {{ selected_file }}
+    <br><a href="/">Change Library</a></br></p>
+{% else %}
+    <p>No Library Selected. <a href="/select_file">Select a Library</a>.</p>
+{% endif %}
+
+<form method="post" action="/search" style="display: flex; align-items: flex-start; flex-wrap: wrap; position: relative;" onsubmit="showLoadingBar(event)">
+    <div style="position: relative; flex-grow: 1; display: flex;">
+        <label for="search">Gene Name:&nbsp;</label>
+        <input type="text" id="search" name="search" required>
+        <button type="submit" style="margin-left: 5px;">Search</button>
+    </div>
+    <div id="autofill-container" style="position: absolute; top: 100%; left: 88px; width: 200px; margin-top: 5px; z-index: 2; background-color: white; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: none;">
+        <div id="autofill"></div>
+    </div>
+</form>
+
+<div id="loading-bar-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; z-index: 10;">
+    <div id="loading-bar" style="width: 0; height: 5px; background-color: #3498db;"></div>
+</div>
+
+<br />
+
+<div id="search_results">
+    {% if search_value %}
+        <h2>'{{ search_value }}'</h2>
+        <div><p1><small><i>  scroll down for interactive umap</i></small></p1></div><br/>
+        <img src="data:image/png;base64,{{ img_base64 }}" alt="Scanpy Plots" style="margin-bottom: 0; display: block;">
+        <br/>
+        <div style="display: flex; justify-content: center; margin-top: 0;">
+            {{ plot_html | safe }}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function showLoadingBar(event) {
+        
+        var loadingBarContainer = document.getElementById('loading-bar-container');
+        var loadingBar = document.getElementById('loading-bar');
+        
+        loadingBarContainer.style.display = 'block';
+        loadingBar.style.width = '0%';
+
+        var width = 0;
+        var interval = setInterval(function() {
+            if (width >= 100) {
+                clearInterval(interval);
+            } else {
+                width += 0.5; 
+                loadingBar.style.width = width + '%';
+            }
+        }, 28); //.5% per 28ms
+
+        
+    }
+
+    function completeSuggestion(suggestion) {
+        $('#search').val(suggestion);
+        $('#autofill-container').hide();
+    }
+
+    jQuery(document).ready(function($) {
+        console.log("Autofill script loaded.");
+
+        $('#search').on('input', function() {
+            var searchValue = $(this).val().toLowerCase();
+            console.log("Input detected. Search value:", searchValue);
+
+            var autofillContainer = $('#autofill-container');
+
+            if (searchValue.trim() !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '/autofill',
+                    data: { 'search_value': searchValue },
+                    success: function(data) {
+                        console.log("Autofill data received:", data);
+
+                        if (data.length === 0) {
+                            $('#autofill').html('<div style="margin-bottom: 5px;">No genes</div>');
+                            autofillContainer.show();
+                        } else {
+                            var spacedSuggestions = data.map(function(suggestion) {
+                                return '<div style="margin-bottom: 5px; cursor: pointer;" onclick="completeSuggestion(\'' + suggestion + '\')">' + suggestion + '</div>';
+                            });
+                            $('#autofill').html(spacedSuggestions.join(''));
+                            autofillContainer.show();
+                        }
+                    }
+                });
+            } else {
+                autofillContainer.hide();
+            }
+        });
+    });
+</script>
+
+{% endblock %}

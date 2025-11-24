@@ -1,0 +1,91 @@
+<!-- plot_multiple_genes.html.html--defunct -->
+
+{% extends "base.html.html" %}
+{% block title %}Plot Multiple Genes | Oka Lab Tools{% endblock %}
+
+{% block content %}
+
+<h1></h1>
+
+{% if selected_file %}
+    <p>Selected Library: {{ selected_file }}</p>
+{% else %}
+    <p>No Library Selected. <a href="/select_file">Select a Library</a>.</p>
+{% endif %}
+
+<form method="post" action="/plot_multiple_genes" style="display: flex; align-items: flex-start; flex-wrap: wrap; position: relative;">
+    <div style="position: relative; flex-grow: 1; display: flex;">
+        <label for="gene_list">Enter Gene Names (comma-separated):</label>
+        <input type="text" id="gene_list" name="gene_list" required>
+        <button type="submit" style="margin-left: 5px;">Plot Genes</button>
+    </div>
+    <div id="autofill-container" style="position: absolute; top: 100%; left: 277px; width: 150px; margin-top: 5px; z-index: 2; background-color: white; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: none;"></div>
+</form>
+
+<div id="plot_results">
+    {% if gene_list %}
+        <h2>Genes: {{ gene_list }}</h2>
+        <img src="data:image/png;base64,{{ img_base64 }}" alt="Scanpy Plots">
+    {% endif %}
+</div>
+
+<script>
+    function completeSuggestion(suggestion) {
+        var currentGeneList = $('#gene_list').val();
+        var lastCommaIndex = currentGeneList.lastIndexOf(',');
+
+        if (lastCommaIndex === -1) {
+            $('#gene_list').val(suggestion + ',');
+        } else {
+            $('#gene_list').val(currentGeneList.substring(0, lastCommaIndex + 1) + suggestion + ',');
+        }
+
+        $('#autofill-container').html(''); 
+        $('#autofill-container').hide(); 
+        $('#gene_list').focus(); 
+    }
+
+    jQuery(document).ready(function($) {
+        console.log("Autofill script loaded.");
+
+        $('#gene_list').on('input', function() {
+            var geneList = $(this).val().toLowerCase();
+            console.log("Input detected. Gene list:", geneList);
+
+            if (geneList.trim() !== '') {
+                var lastGene = geneList.split(',').pop().trim(); 
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/autofill',
+                    data: { 'search_value': lastGene },
+                    success: function(data) {
+                        console.log("Autofill data received:", data);
+
+                        if (data.length === 0) {
+                            $('#autofill-container').html('<div>No genes</div>');
+                            $('#autofill-container').show(); 
+                        } else {
+                            var spacedSuggestions = data.map(function(suggestion) {
+                                return '<div style="margin-bottom: 5px; cursor: pointer;" onclick="completeSuggestion(\'' + suggestion + '\')">' + suggestion + '</div>';
+                            });
+                            $('#autofill-container').html(spacedSuggestions.join(''));
+                            $('#autofill-container').show(); 
+                        }
+                    }
+                });
+            } else {
+                $('#autofill-container').html('');
+                $('#autofill-container').hide();
+            }
+        });
+    });
+
+    $('form').submit(function() {
+        var geneList = $('#gene_list').val();
+        geneList = geneList.replace(/,+$/, ''); 
+        $('#gene_list').val(geneList);
+    });
+</script>
+
+{% endblock %}

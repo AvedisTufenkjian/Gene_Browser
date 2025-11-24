@@ -1,0 +1,17 @@
+{% extends "base.html.html" %}
+
+{% block title %}Jerboa Brain Atlas{% endblock %}
+
+{% block header %}
+  <h1>Jerboa Brain Atlas</h1>
+  <p>Section thickness: 100 μm<br>
+    DAPI fluorescence (left) and bright field (right) images<br>
+    Scale bar: 2 mm</p>
+
+{% endblock %}
+
+{% block content %}
+  <div style="width: 100%; height: 800px;">
+      <embed src="{{ url_for('static', filename='pdf/Jerboa_Brain_Atlas.pdf') }}" type="application/pdf" width="100%" height="100%">
+  </div>
+{% endblock %}
