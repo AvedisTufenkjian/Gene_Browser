@@ -1,4 +1,4 @@
-# SFO Thirst Gene Browser
+# SFO Gene Browser
 
 This repository contains an open-source, interactive gene browser built to explore our extended single-cell RNA-seq data from the subfornical organ (SFO) under distinct thirst conditions.  
 
